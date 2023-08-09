@@ -23,3 +23,4 @@ TO DO:
 * Create sensor module to record Temperature and Humidity
 * Create a main screen from which to open each module
 * Create option to send email alerts
+* Clean up .py files, update comments
