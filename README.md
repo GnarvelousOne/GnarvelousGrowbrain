@@ -7,11 +7,13 @@ Hardware is a Raspberry Pi, 5V relay board, wireless keyboard, touchscreen displ
 
 GUI created using Tkinter and ttkbootstrap.
 
-Run menu.py to then choose which modules to open, such as Lights, Water, etc.
+BASIC OPERATION:
+
+Run menu.py to then choose which modules to open, such as Lights, Water, etc.  You could set menu.py to automatically run on boot up of the pi, or create an executable icon on the Desktop.  Run it however you wish.
 
 Use the different modules to store values in the SQL database, such as "lights_on_hour". 
 
-The cronjob runs gpiobrain.py every minute.
+The cronjob automatically runs gpiobrain.py every minute.
 
 gpiobrain.py runs a function for each module, such as "light_cycle()", which grabs the values from the database and makes changes to the GPIO pins as necessary.
 
@@ -20,5 +22,5 @@ Example:  You want the lights to come on at 8:00 AM.  You open the lights.py mod
 
 TO DO:
 * Create other modules to control other devices such as fans, drain pumps.
-* Create sensor module to record Temperature and Humidity
+* Create sensor module to record Temperature and Humidity.  Decide how to display this to the user.
 * Create option to send email alerts
