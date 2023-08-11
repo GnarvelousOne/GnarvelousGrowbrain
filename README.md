@@ -5,7 +5,7 @@ Uses Python, SQLite3, and the cronjob to automate garden functions.
 
 Hardware is a Raspberry Pi, 5V relay board, wireless keyboard, touchscreen display.
 
-GUI created using Tkinter and ttkbootstrap.
+GUI created using Tkinter and ttkbootstrap (https://ttkbootstrap.readthedocs.io/en/latest/).
 
 BASIC OPERATION:
 
