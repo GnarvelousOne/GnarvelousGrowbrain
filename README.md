@@ -8,28 +8,31 @@ Hardware is a Raspberry Pi (Model 3 used), 5V relay board, wireless keyboard, to
 GUI created using Tkinter and ttkbootstrap (https://ttkbootstrap.readthedocs.io/en/latest/).
 
 TO DO:
-* Create other modules to control other devices such as fans, drain pumps.
-* Add ttkbootstrap to all .py files
-* Combine sprinkleron & off, with outletcontrol, to make a generic manual on/off for all outlets.
-* Create option to send email alerts
+* Add functionality to the number keypad
+* Integrate option to send email alerts
+* Create other modules to control other devices
+* Real world test
 
-BASIC OPERATION:
+BASIC OPERATION
 
-FARM.PY
+FARM.PY:
 * Main script.  You could set farm.py to automatically run on boot up of the pi, or create an executable icon on the Desktop.  Farm.py connects to dht.db and gb_config.db to update and retrieve the environmental values and timer settings.
  
-CRONJOB
+CRONJOB:
 * The cronjob automatically runs gpiobrain.py every minute. See photos in support for an example of the cron task
 
-GPIOBRAIN.PY
+GPIOBRAIN.PY:
 * gpiobrain.py runs a function for each module, such as "light_cycle()", which grabs the values from the database and makes changes to the GPIO pins as necessary.
 
 * Example:  You want the lights to come on at 8:00 AM.  You navigate to the Lights module in farm.py, and enter "8" for the Lights ON Hour, and "00" or "0" for the Lights ON Minute, and click on "SAVE".  These values are then stored in the database.  The cronjob runs gpiobrain.py every minute, and when it does so at 8:00 AM, the conditional for lights turning on will evaluate to True, and the script will then turn on the lights.
 
 * gpiobrain.py also takes measurements of Temp, Humidity, and other environment variables at a specified interval (default is 15 minutes), and adds a new SQL entry recording including the datetime of the measurement.
 
-UTILITIES
+SUPPORT:
+* photos and media to support construction and design
+
+UTILITIES:
 * useful scripts to reset the Pi, reset GPIO pins, manual control of outlets
 
-SUPPORT
-* photos and media to support construction and design
+VERSIONS:
+* deprecated files, alternate configurations
