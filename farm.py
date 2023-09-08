@@ -10,35 +10,38 @@ import os
 
 # window
 window = ttk.Window(themename = 'darkly')
-window.title("Farm Module")
+window.title("|   The Gnarvelous Growbrain   |")
 window.geometry('575x300')
 
 
-# style
-
+# fonts
 main_font = "Roboto" 
+main_font_size = 10
 
+label_font = "Roboto 10"
+
+
+# style
 primary_style = ttk.Style()
-primary_style.configure('primary.TButton', font=(main_font, 10))
+primary_style.configure('primary.TButton', font=(main_font, main_font_size))
 
 secondary_style = ttk.Style()
-secondary_style.configure('secondary.TButton', font=(main_font, 10))
+secondary_style.configure('secondary.TButton', font=(main_font, main_font_size))
 
 info_style = ttk.Style()
-info_style.configure('info.TButton', font=(main_font, 10))
+info_style.configure('info.TButton', font=(main_font, main_font_size))
 
 success_style = ttk.Style()
-success_style.configure('success.TButton', font=(main_font, 10))
+success_style.configure('success.TButton', font=(main_font, main_font_size))
 
 warning_style = ttk.Style()
-warning_style.configure('warning.TButton', font=(main_font, 10))
+warning_style.configure('warning.TButton', font=(main_font, main_font_size))
 
 danger_style = ttk.Style()
-danger_style.configure('danger.TButton', font=(main_font, 10))
+danger_style.configure('danger.TButton', font=(main_font, main_font_size))
 
-
-# fonts
-label_font = "Roboto 10"
+light_style = ttk.Style()
+light_style.configure('light.TButton', font=(main_font, main_font_size))
 
 
 def save_inputs_bind(events):
