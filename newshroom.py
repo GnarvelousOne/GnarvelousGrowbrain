@@ -10,12 +10,12 @@ import board
 import adafruit_dht
 
 # window
-window = ttk.Window(themename = 'darkly')
-window.title("Light Module")
+window = ttk.Window(themename = 'vapor')
+window.title("Shroom Module")
 window.geometry('575x300')
 
 
-#Style
+# style
 
 main_font = "Roboto" 
 
@@ -60,79 +60,109 @@ def status_var_update(text):
 def save_inputs_bind(events):
 	save_inputs()
 
+
 def save_inputs():
 	
 	# Update database values
 	
 	# Write the results to the SQL database.
-	conn = sqlite3.connect("gb_config.db")
+	conn = sqlite3.connect("shroom_config.db")
 	
 	c = conn.cursor()
-	
+
+
+	### Controls ###
+	# blue rope light
+		# fruiting: 12 hrs/day
+		# manual on/off
+		# lights_on, lights_off 
+	# humidifier
+		# Fruiting: 80 - 95%
+		# humidity_on, off
+		# set an alert if using standalone unit
+	# A/C
+		# Colonization: 68 - 75 deg
+		# Fruiting: 50 - 77 deg
+	# intake fans
+		# manual on/off
+		# scheduled, and periodical options?
+	# c02 monitoring and exhaust
+		# if able to find sensor
+		# turn exhaust fan on if level exceeds
+	# spore exhaust fan
+		# manual on/off
+	# circulation fans
+		# manual on/off
+		# scheduled, and periodical options?
+	# vapor pressure deficit
+		# calculate and display
+
+
 	# Only run this the first time to create the table.
-	
 	'''
-	c.execute("""CREATE TABLE gb (
+	c.execute("""CREATE TABLE shroom (
 				lights_on_hour int,
 				lights_on_minute int,
 				lights_off_hour int,
 				lights_off_minute int,
 				lights_manual bool,
-				lights_status int,
-				water_on_hour int,
-				water_on_minute int,
-				water_off_hour int,
-				water_off_minute int,
-				water_manual bool,
-				water_status int
-				
-				)""")
-				'''
+				light_status int,
+				humidifer_manual bool,
+				humidifier_status int,
+				circfan_manual bool,
+				circfan_status int,
+				intake_manual bool,
+				intake_status int,
+				exhaust_manual bool,
+				exhaust_status int,				
+				)""")'''
 
 	w_dict = {
 		'lights_on_hour':lights_on_hour_var, 
 		'lights_on_minute':lights_on_minute_var,
 		'lights_off_hour':lights_off_hour_var, 
-		'lights_off_minute':lights_off_minute_var
+		'lights_off_minute':lights_off_minute_var,
+		'lights_manual':lights_manual_var,
+		'light_status':light_status_var,
+		'humidifer_manual':humidifer_manual_var,
+		'humidifier_status':humidifier_status_var,
+		'circfan_manual':circfan_manual_var,
+		'circfan_status':circfan_status_var,
+		'intake_manual':intake_manual_var,
+		'intake_status':intake_status_var,
+		'exhaust_manual':exhaust_manual_var,
+		'exhaust_status':exhaust_status_var
 		}
 
 	for i,j in w_dict.items():
 		if len(j.get()) > 0:
-			c.execute("UPDATE gb SET {} = ?".format(i), (j.get(),))
+			c.execute("UPDATE shroom SET {} = ?".format(i), (j.get(),))
 				
 				 
 	conn.commit()
 	conn.close()
-	
-	status_var_update("Settings Saved")
 
 
 def manual(device, bool_state):
 	
-	#print(device)
-	#print(bool_state)
+	print(device)
+	print(bool_state)
 	
 	if device == 'lights':
 		pin = 5
-	
-	if bool_state:
-		status_text = 'ON'
-	else:
-		status_text = 'OFF'	
-	
 	not_bool_state = not bool_state
 	sql_manual = f"{device}_manual"
 	sql_status = f"{device}_status"
-	
 	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(pin, GPIO.OUT)
 	
-	# change state of GPIO pin  
+	# turn lights on  
 	GPIO.output(pin, not_bool_state)
 		
 	# Write the results to the SQL database.
 	conn = sqlite3.connect("gb_config.db")
+	
 	c = conn.cursor()
 	
 	c.execute("UPDATE gb SET {} = ?".format(sql_manual), (bool_state,))
@@ -141,11 +171,36 @@ def manual(device, bool_state):
 	conn.commit()
 	conn.close()
 	
-	status_var_update(f"Device turned {status_text} Manually")
+	status_var_update("Device turned ON Manually")
 	
+'''	
+def man_off():
+	
+	lights = 5
+	
+	GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(lights, GPIO.OUT)
+	
+	# turn lights off  
+	GPIO.output(lights, True)
+		
+	# Write the results to the SQL database.
+	conn = sqlite3.connect("gb_config.db")
+	
+	c = conn.cursor()
+	
+	c.execute("UPDATE gb SET lights_manual = ?", (False,))
+	c.execute("UPDATE gb SET lights_status = ?", (0,))
+	
+	conn.commit()
+	conn.close()
+	
+	status_var_update("Device turned OFF Manually")
+'''	
 	
 def reset():
-	yo()
+	
 	lights_on_hour_var.set('')
 	lights_on_minute_var.set('')
 	lights_off_hour_var.set('')
@@ -188,9 +243,9 @@ status_var.set('Status')
 status = ttk.Label(window, text = 'Status', font = label_font, textvariable = status_var, bootstyle = 'success')
 manual_on = ttk.Button(window, text='ON', command = lambda:manual('lights', 1), bootstyle = 'secondary', style = 'secondary.TButton')
 manual_off = ttk.Button(window, text='OFF', command = lambda:manual('lights', 0), bootstyle = 'secondary', style = 'secondary.TButton')
-save = ttk.Button(window, text='SAVE', command=save_inputs, bootstyle = 'success', style = 'success.TButton')
-resetb = ttk.Button(window, text='RESET', command=reset, bootstyle = 'warning', style = 'warning.TButton')
-adios = ttk.Button(window, text='EXIT', command=exit, bootstyle = 'danger', style = 'danger.TButton')
+save = ttk.Button(window, text='SAVE', command = save_inputs, bootstyle = 'success', style = 'success.TButton')
+resetb = ttk.Button(window, text='RESET', command = reset, bootstyle = 'warning', style = 'warning.TButton')
+adios = ttk.Button(window, text='EXIT', command = exit, bootstyle = 'danger', style = 'danger.TButton')
 
 label1 = ttk.Label(window, text = 'ON\nHour:', font = label_font, bootstyle = 'warning')
 label2 = ttk.Label(window, text = 'ON\nMinute:', font = label_font, bootstyle = 'warning')
@@ -202,6 +257,18 @@ lights_on_hour_var = ttk.StringVar()
 lights_on_minute_var = ttk.StringVar()
 lights_off_hour_var = ttk.StringVar()
 lights_off_minute_var = ttk.StringVar()
+lights_manual_var = ttk.StringVar()
+light_status_var = ttk.StringVar()
+humidifer_manual_var = ttk.StringVar()
+humidifier_status_var = ttk.StringVar()
+circfan_manual_var = ttk.StringVar()
+circfan_status_var = ttk.StringVar()
+intake_manual_var = ttk.StringVar()
+intake_status_var = ttk.StringVar()
+exhaust_manual_var = ttk.StringVar()
+exhaust_status_var = ttk.StringVar()
+
+lights_manual = ttk.Checkbutton(window, text = "Lights ON/OFF", command = lambda:manual('lights', True), textvariable= lights_manual_var, bootstyle = 'primary')
 
 lights_on_hour = ttk.Entry(window, textvariable = lights_on_hour_var, bootstyle = 'warning')
 lights_on_minute = ttk.Entry(window, textvariable = lights_on_minute_var, bootstyle = 'warning')
@@ -264,13 +331,14 @@ label2.grid(row = 0, column = 4, sticky = label_sticky, padx = label_entry_padx)
 label3.grid(row = 2, column = 3, sticky = label_sticky, padx = label_entry_padx)
 label4.grid(row = 2, column = 4, sticky = label_sticky, padx = label_entry_padx)
 
-def yo():
-	lights_on_hour.grid(row = 1, column = 3, sticky = entry_sticky, padx = label_entry_padx)
-	lights_on_minute.grid(row = 1, column = 4, sticky = entry_sticky, padx = label_entry_padx)
-	lights_off_hour.grid(row = 3, column = 3, sticky = entry_sticky, padx = label_entry_padx)
-	lights_off_minute.grid(row = 3, column = 4, sticky = entry_sticky, padx = label_entry_padx)
+lights_manual.grid(row = 1, column = 2, sticky = entry_sticky, padx = label_entry_padx)
 
+lights_on_hour.grid(row = 1, column = 3, sticky = entry_sticky, padx = label_entry_padx)
+lights_on_minute.grid(row = 1, column = 4, sticky = entry_sticky, padx = label_entry_padx)
+lights_off_hour.grid(row = 3, column = 3, sticky = entry_sticky, padx = label_entry_padx)
+lights_off_minute.grid(row = 3, column = 4, sticky = entry_sticky, padx = label_entry_padx)
 
+lights_off_minute.grid(row = 3, column = 4, sticky = entry_sticky, padx = label_entry_padx)
 
 keypad9.grid(row = 0, column = 7, sticky = keypad_sticky, padx = keypad_padding, pady = keypad_padding)
 keypad8.grid(row = 0, column = 6, sticky = keypad_sticky, padx = keypad_padding, pady = keypad_padding)

@@ -1,0 +1,1 @@
+DHT reading on Sunday 09/03 13:15 PM: Temp: 72.0 F / 22.0 C    Humidity: 32% 

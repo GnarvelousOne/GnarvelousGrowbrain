@@ -1,10 +1,13 @@
-#!/usr/bin/python
+#! /usr/bin/python
 import RPi.GPIO as GPIO
 import time
 import datetime
 import board
 import adafruit_dht
 import sqlite3
+import os
+
+
 
 #from dht import dhtRun
 #import dht
@@ -180,8 +183,11 @@ def temphumcheck():
                         
                         
         # Write the results to the SQL database.
-        conn = sqlite3.connect("dht.db")
         
+        path = os.path.dirname(os.path.abspath(__file__))
+        db = os.path.join(path, 'dht.db')
+        
+        conn = sqlite3.connect(db)
         c = conn.cursor()
         
         # Only run this the first time to create the table.
@@ -253,7 +259,10 @@ def temphumcheck():
     
 def lightcycle():
     
-    conn = sqlite3.connect("gb_config.db")
+    path = os.path.dirname(os.path.abspath(__file__))
+    db = os.path.join(path, 'gb_config.db')
+    
+    conn = sqlite3.connect(db)
     c = conn.cursor()
 
     lights = 5
@@ -323,10 +332,14 @@ def lightcycle():
             print("Light Status changed to: Off")
             print(f"time_now: {time_now_display}")
             print(f"off_time: {off_time_display}")
+            
 
 def watercycle():
     
-    conn = sqlite3.connect("gb_config.db")
+    path = os.path.dirname(os.path.abspath(__file__))
+    db = os.path.join(path, 'gb_config.db')
+    
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     
     water = 6
