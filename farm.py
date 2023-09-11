@@ -16,9 +16,9 @@ window.geometry('575x300')
 
 # fonts
 main_font = "Roboto" 
-main_font_size = 10
+main_font_size = 8
 
-label_font = "Roboto 10"
+label_font = "Roboto 8"
 
 
 # style
@@ -49,7 +49,7 @@ def save_inputs_bind(events):
 
 def save_inputs():
     
-    timeNow = datetime.datetime.now().strftime("%m/%d/%y %H:%M")
+    timeNow = datetime.datetime.now().strftime("%H:%M")
     
     # Update database values
     
@@ -118,13 +118,17 @@ def save_inputs():
     
     conn.close()
     
-    #status_var.set("Settings Saved")
     print("Settings Saved")
     
+    save_label_var.set(f'Last save:\n{timeNow}')
+        
     next_event()
+    refresh_temp_hum()
 
 
 def current_temp_hum():
+    
+    timeNow = datetime.datetime.now().strftime("%H:%M")
     
     # get the last readings from dht.db
 
@@ -133,7 +137,7 @@ def current_temp_hum():
 
     query = c.execute("SELECT * FROM dht").fetchall()[-1]
     
-    update = f"Currently:\n{query[4]}F / {query[3]}C\n{query[5]}% rH"
+    update = f"Last check:\n{query[4]}F / {query[5]}% rH\n{timeNow}"
     
     #print(query)
     #print(update)
@@ -264,8 +268,6 @@ def status_light():
     
 def reset():
     
-    timeNow = datetime.datetime.now().strftime("%m/%d/%y %H:%M")
-    
     lights_on_hour_var.set('')
     lights_on_minute_var.set('')
     lights_off_hour_var.set('')
@@ -285,18 +287,23 @@ def clear():
     current_temp_hum()
 
 
-entry = 'x'
+keypad_num = 'e'
 def keypad(entry, number):
     
-    print(f'entry: {entry}')
+    print(f'entry: {keypad_num}')
     print(f'number: {number}')
     
-    print(f'Number {number} was pressed!')
+    terms = (keypad_num, number)
+    blob = ''.join(terms)
+    print(f'blob: {blob}')
     
-    entry.join(str(number))
-    
-    print(f'entry: {entry}')
+    print(f'entry: {keypad_num}')
     print(f'number: {number}')
+    
+    a = '1'
+    b = '2'
+    
+    print(a.join(b))
 
 
 def next_event():
@@ -389,6 +396,10 @@ def next_event():
     next_var.set(f'Next:\n{next_event_name}\n{next_time_hour}:{next_time_minute}')
     
     
+def refresh_temp_hum():
+    status_var.set(current_temp_hum())
+    
+    
 # bind keystrokes
 window.bind('<Return>', save_inputs_bind)
 
@@ -411,8 +422,11 @@ window.rowconfigure(4, weight = 2, uniform = 'a')
 status_var = ttk.StringVar()
 status_var.set(current_temp_hum())
 
+save_label_var = ttk.StringVar()
+save_label_var.set('Last save:')
+
 module_label_var = ttk.StringVar()
-module_label_var.set('')
+module_label_var.set('No module\nloaded')
 
 last_var = ttk.StringVar()
 last_var.set('Last:\nnone\nnone')
@@ -421,6 +435,7 @@ next_var = ttk.StringVar()
 next_var.set('Next:\nnone\nnone')
 
 status = ttk.Label(window, font = label_font, textvariable = status_var, bootstyle = 'inverse secondary')
+save_label = ttk.Label(window, font = label_font, textvariable = save_label_var, bootstyle = 'inverse secondary')
 module_label = ttk.Label(window, font = label_font, textvariable = module_label_var, bootstyle = 'inverse secondary')
 last_label = ttk.Label(window, font = label_font, textvariable = last_var, bootstyle = 'inverse secondary')
 next_label = ttk.Label(window, font = label_font, textvariable = next_var, bootstyle = 'inverse secondary')
@@ -443,9 +458,9 @@ intake_manual_off = ttk.Button(window, text='OFF', command = lambda:manual('inta
 exhaust_manual_on = ttk.Button(window, text='ON', command = lambda:manual('exhaust', 1), bootstyle = 'light outline')
 exhaust_manual_off = ttk.Button(window, text='OFF', command = lambda:manual('exhaust', 0), bootstyle = 'light outline')
 
-save = ttk.Button(window, text='SAVE', command=save_inputs, bootstyle = 'success', style = 'success.TButton')
-resetb = ttk.Button(window, text='RESET', command=reset, bootstyle = 'warning', style = 'warning.TButton')
-adios = ttk.Button(window, text='EXIT', command=exit, bootstyle = 'danger', style = 'danger.TButton')
+save = ttk.Button(window, text='SAVE /\nUPDATE', command = save_inputs, bootstyle = 'success', style = 'success.TButton')
+resetb = ttk.Button(window, text='RESET', command = reset, bootstyle = 'warning', style = 'warning.TButton')
+adios = ttk.Button(window, text='EXIT', command = exit, bootstyle = 'danger', style = 'danger.TButton')
 
 
 # Lights
@@ -529,35 +544,35 @@ outlet_eight_label = ttk.Label(window, textvariable = outlet_eight_var, font = l
 
 
 # Keypad
-keypad9_input = ttk.IntVar(value = 9)
-keypad9 = ttk.Button(window, textvariable = keypad9_input, text = '9', command = lambda: keypad(entry, keypad9_input.get()), style = 'primary.TButton')
+keypad9_input = ttk.StringVar(value = '9')
+keypad9 = ttk.Button(window, textvariable = keypad9_input, text = '9', command = lambda: keypad(keypad_num, keypad9_input.get()), style = 'primary.TButton')
 
-keypad8_input = ttk.IntVar(value = 8)
-keypad8 = ttk.Button(window, textvariable = keypad8_input, text = '8', command = lambda: keypad(entry, keypad8_input.get()), style = 'primary.TButton')
+keypad8_input = ttk.StringVar(value = '8')
+keypad8 = ttk.Button(window, textvariable = keypad8_input, text = '8', command = lambda: keypad(keypad_num, keypad8_input.get()), style = 'primary.TButton')
 
-keypad7_input = ttk.IntVar(value = 7)
-keypad7 = ttk.Button(window, textvariable = keypad7_input, text = '7', command = lambda: keypad(entry, keypad7_input.get()), style = 'primary.TButton')
+keypad7_input = ttk.StringVar(value = '7')
+keypad7 = ttk.Button(window, textvariable = keypad7_input, text = '7', command = lambda: keypad(keypad_num, keypad7_input.get()), style = 'primary.TButton')
 
-keypad6_input = ttk.IntVar(value = 6)
-keypad6 = ttk.Button(window, textvariable = keypad6_input, text = '6', command = lambda: keypad(entry, keypad6_input.get()), style = 'primary.TButton')
+keypad6_input = ttk.StringVar(value = '6')
+keypad6 = ttk.Button(window, textvariable = keypad6_input, text = '6', command = lambda: keypad(keypad_num, keypad6_input.get()), style = 'primary.TButton')
 
-keypad5_input = ttk.IntVar(value = 5)
-keypad5 = ttk.Button(window, textvariable = keypad5_input, text = '5', command = lambda: keypad(entry, keypad5_input.get()),style = 'primary.TButton')
+keypad5_input = ttk.StringVar(value = '5')
+keypad5 = ttk.Button(window, textvariable = keypad5_input, text = '5', command = lambda: keypad(keypad_num, keypad5_input.get()),style = 'primary.TButton')
 
-keypad4_input = ttk.IntVar(value = 4)
-keypad4 = ttk.Button(window, textvariable = keypad4_input, text = '4', command = lambda: keypad(entry, keypad4_input.get()),style = 'primary.TButton')
+keypad4_input = ttk.StringVar(value = '4')
+keypad4 = ttk.Button(window, textvariable = keypad4_input, text = '4', command = lambda: keypad(keypad_num, keypad4_input.get()),style = 'primary.TButton')
 
-keypad3_input = ttk.IntVar(value = 3)
-keypad3 = ttk.Button(window, textvariable = keypad3_input, text = '3', command = lambda: keypad(entry, keypad3_input.get()), style = 'primary.TButton')
+keypad3_input = ttk.StringVar(value = '3')
+keypad3 = ttk.Button(window, textvariable = keypad3_input, text = '3', command = lambda: keypad(keypad_num, keypad3_input.get()), style = 'primary.TButton')
 
-keypad2_input = ttk.IntVar(value = 2)
-keypad2 = ttk.Button(window, textvariable = keypad2_input, text = '2', command = lambda: keypad(entry, keypad2_input.get()), style = 'primary.TButton')
+keypad2_input = ttk.StringVar(value = '2')
+keypad2 = ttk.Button(window, textvariable = keypad2_input, text = '2', command = lambda: keypad(keypad_num, keypad2_input.get()), style = 'primary.TButton')
 
-keypad1_input = ttk.IntVar(value = 1)
-keypad1 = ttk.Button(window, textvariable = keypad1_input, text = '1', command = lambda: keypad(entry, keypad1_input.get()), style = 'primary.TButton')
+keypad1_input = ttk.StringVar(value = '1')
+keypad1 = ttk.Button(window, textvariable = keypad1_input, text = '1', command = lambda: keypad(keypad_num, keypad1_input.get()), style = 'primary.TButton')
 
-keypad0_input = ttk.IntVar(value = 0)
-keypad0 = ttk.Button(window, textvariable = keypad0_input, text = '0', command = lambda: keypad(entry, keypad0_input.get()), style = 'primary.TButton')
+keypad0_input = ttk.StringVar(value = '0')
+keypad0 = ttk.Button(window, textvariable = keypad0_input, text = '0', command = lambda: keypad(keypad_num, keypad0_input.get()), style = 'primary.TButton')
 
 keypad_clear = ttk.Button(window, text = 'CE', command = clear, style = 'primary.TButton')
 
@@ -570,12 +585,13 @@ keypad_padding = 2
 
 
 # Grid layout
-status.grid(row = 0, column = 2, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
-module_label.grid(row = 0, column = 3, columnspan = 2, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
+status.grid(row = 4, column = 3, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
+save_label.grid(row = 4, column = 4, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
+module_label.grid(row = 0, column = 2, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
 last_label.grid(row = 4, column = 0, columnspan = 2, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
 next_label.grid(row = 4, column = 2, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
-prev_page.grid(row = 4, column = 3, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
-next_page.grid(row = 4, column = 4, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
+prev_page.grid(row = 0, column = 3, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
+next_page.grid(row = 0, column = 4, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
 
 outlet_one_label.grid(row = 0, column = 0, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
 outlet_two_label.grid(row = 0, column = 1, sticky = 'nsew', padx = label_entry_padx, pady = label_entry_padx)
@@ -624,7 +640,8 @@ def lights_grid():
     
     # Add
     
-    module_label_var.set(f'\n\nLights Module')
+    module_label_var.set(f'Lights\nModule')
+    module_label.configure(bootstyle = 'warning')
         
     lights_on_time_label.grid(row = 1, column = 2, padx = label_entry_padx)
     lights_off_time_label.grid(row = 2, column = 2, padx = label_entry_padx)
@@ -669,7 +686,8 @@ def water_grid():
 
     # Add
     
-    module_label_var.set(f'\n\nWater Module')
+    module_label_var.set(f'Water\nModule')
+    module_label.configure(bootstyle = 'info')
         
     water_on_time_label.grid(row = 1, column = 2, padx = label_entry_padx)
     water_off_time_label.grid(row = 2, column = 2, padx = label_entry_padx)
@@ -716,7 +734,8 @@ def air_grid():
     
     # Add
     
-    module_label_var.set(f'\n\nAir Module')
+    module_label_var.set(f'Air\nModule')
+    module_label.configure(bootstyle = 'light')
     
     circfan_manual_label.grid(row = 1, column = 2, padx = label_entry_padx)
     intake_manual_label.grid(row = 2, column = 2, padx = label_entry_padx)
